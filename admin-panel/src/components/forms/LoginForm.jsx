@@ -1,10 +1,12 @@
-import { useState } from "react"
+import { useState ,useContext } from "react"
 import { Link ,useNavigate} from "react-router-dom"
 import { loginUser } from "../services/authservice"
+import {AuthContext} from "../context/AuthContext"
 
 
 function LoginForm() {
     const navigate = useNavigate()
+    const { login } = useContext(AuthContext)
 
   const [formData, setFormData] = useState({
     username: "",
@@ -32,7 +34,9 @@ async function handleSubmit(event) {
 
     console.log(data)
 
-    localStorage.setItem("token", data.token)
+   
+      login(data.token)
+   
 
     navigate("/dashboard")
 
@@ -65,6 +69,7 @@ async function handleSubmit(event) {
         type="password"
         name="password"
         placeholder="Enter Password"
+        autoComplete="off"
         value={formData.password}
         onChange={handleChange}
       />

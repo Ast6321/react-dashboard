@@ -87,6 +87,37 @@ function closeSidebar() {
 
         </li>
 
+        <li>
+
+          <NavLink
+            to="/dashboard/orders"
+            className={({ isActive }) =>
+              isActive ? "active-link" : ""
+            }
+            onClick={closeSidebar}
+          >
+            Orders
+          </NavLink>
+
+        </li>
+
+        <li>
+
+          <NavLink
+            to="/dashboard/messages"
+            className={({ isActive }) =>
+              isActive ? "active-link" : ""
+            }
+            onClick={closeSidebar}
+          >
+            Messages
+          </NavLink>
+
+        </li>
+
+
+
+
       </ul>
 
       <button

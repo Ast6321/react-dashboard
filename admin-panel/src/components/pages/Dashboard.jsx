@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
 import { getUsers, getProducts, getCarts } from "../services/dashboardservice"
 
-
+import ViewToggle from "../reusableitems/viewtoggle"
+import Pagination from "../reusableitems/Pagination"
 
 
 
@@ -12,6 +13,7 @@ function Dashboard() {
   const [error, setError] = useState("")
   const [orders, setOrders] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
+  const [viewMode,setViewMode] = useState("table")
 
   const itemsPerPage = 5
 
@@ -129,6 +131,8 @@ function Dashboard() {
       orders.length / itemsPerPage
     )
 
+
+
 function renderPaginationButtons(){
 
   let buttons = []
@@ -136,10 +140,17 @@ function renderPaginationButtons(){
 
 
   for(
+
     let i = 1;
+
     i <= totalPages;
+
     i++
+
   ){
+
+
+
 
     if(
 
@@ -147,24 +158,39 @@ function renderPaginationButtons(){
 
       i === totalPages ||
 
-      (i >= currentPage - 1 &&
-       i <= currentPage + 1)
+      (
+
+        i >= currentPage - 1 &&
+
+        i <= currentPage + 1
+
+      )
 
     ){
+
+
+
 
       buttons.push(
 
         <button
+
           key={i}
 
           className={
+
             currentPage === i
-              ? "active-page"
-              : ""
+
+            ? "active-page"
+
+            : ""
+
           }
 
           onClick={() =>
+
             setCurrentPage(i)
+
           }
         >
 
@@ -176,6 +202,9 @@ function renderPaginationButtons(){
 
     }
 
+
+
+
     else if(
 
       i === currentPage - 2 ||
@@ -184,13 +213,20 @@ function renderPaginationButtons(){
 
     ){
 
+
+
+
       buttons.push(
 
         <span
+
           key={i}
+
           className="dots"
         >
+
           ...
+
         </span>
 
       )
@@ -198,6 +234,8 @@ function renderPaginationButtons(){
     }
 
   }
+
+
 
   return buttons
 
@@ -240,9 +278,53 @@ function renderPaginationButtons(){
 
       </div>
 
+{/* <div className="view-toggle">
+
+  <button
+    className={
+      viewMode === "table"
+      ? "active-view"
+      : ""
+    }
+
+    onClick={() =>
+      setViewMode("table")
+    }
+  >
+
+    Table View
+
+  </button>
+
+  <button
+    className={
+      viewMode === "grid"
+      ? "active-view"
+      : ""
+    }
+
+    onClick={() =>
+      setViewMode("grid")
+    }
+  >
+
+    Grid View
+
+  </button>
+
+</div> */}
+<ViewToggle
+  viewMode={viewMode}
+  setViewMode={setViewMode}
+/>
 
 
-      <div className="table-section">
+{
+  viewMode === "table"
+
+  ? (
+
+   <div className="table-section">
 
         <h3>
           Recent Orders
@@ -259,7 +341,7 @@ function renderPaginationButtons(){
                 <th>Customer</th>
                 <th>Status</th>
                 <th>Amount</th>
-                <th>Date</th>
+                <th>Items</th>
 
               </tr>
 
@@ -318,29 +400,72 @@ function renderPaginationButtons(){
 
       </div>
 
-      <div className="pagination">
+  )
 
-        <button
-          disabled={currentPage === 1}
-          onClick={() =>
-            setCurrentPage(currentPage - 1)
-          }
+  : (
+
+    <div className="grid-section">
+
+  {
+    currentOrders.map((order) => (
+
+      <div
+        className="order-card"
+        key={order.id}
+      >
+
+        <h3>
+          Order #{order.id}
+        </h3>
+
+        <p>
+          Customer:
+          User {order.userId}
+        </p>
+
+        <p>
+          Amount:
+          ${order.total}
+        </p>
+
+        <p>
+          Items:
+          {order.totalProducts}
+        </p>
+
+        <span
+          className={`status ${getStatus(order.id).toLowerCase()}`}
         >
-          Prev
-        </button>
 
-          {renderPaginationButtons()}
+          {getStatus(order.id)}
 
-        <button
-          disabled={currentPage === totalPages}
-          onClick={() =>
-            setCurrentPage(currentPage + 1)
-          }
-        >
-          Next
-        </button>
+        </span>
 
       </div>
+
+    ))
+  }
+
+</div>
+
+  )
+}
+
+
+
+
+      
+
+
+      <Pagination
+
+  currentPage={currentPage}
+
+  totalPages={totalPages}
+
+  setCurrentPage={setCurrentPage}
+
+/>
 
     </div>
 
