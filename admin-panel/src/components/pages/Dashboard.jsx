@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState,useContext} from "react"
 import { getUsers, getProducts, getCarts } from "../services/dashboardservice"
 
 import ViewToggle from "../reusableitems/viewtoggle"
 import Pagination from "../reusableitems/Pagination"
+import { SearchContext } from "../context/searchContext"
 
 
 
@@ -14,6 +15,7 @@ function Dashboard() {
   const [orders, setOrders] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [viewMode,setViewMode] = useState("table")
+  const {searchQuery} = useContext(SearchContext)
 
   const itemsPerPage = 5
 
@@ -85,6 +87,12 @@ function Dashboard() {
   }
 
 
+    useEffect(() => {
+
+  setCurrentPage(1)
+
+}, [searchQuery])
+
   useEffect(() => {
 
     fetchDashboardData()
@@ -122,13 +130,24 @@ function Dashboard() {
 
   }
 
+
+
+  const filteredOrders =
+
+orders.filter((order) =>
+
+  String(order.id)
+  .includes(searchQuery)
+
+)
+
   const lastItemIndex = currentPage * itemsPerPage
   const firstItemIndex = lastItemIndex - itemsPerPage
-  const currentOrders = orders.slice(firstItemIndex, lastItemIndex)
+  const currentOrders = filteredOrders.slice(firstItemIndex, lastItemIndex)
 
   const totalPages =
     Math.ceil(
-      orders.length / itemsPerPage
+      filteredOrders.length / itemsPerPage
     )
 
 

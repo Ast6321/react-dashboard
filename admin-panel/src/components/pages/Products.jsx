@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState,useContext } from "react"
 import { fetchProducts } from "../services/productservice"
 import ViewToggle from "../reusableitems/viewtoggle"
 import Pagination from "../reusableitems/Pagination"
+import { SearchContext } from "../context/searchContext"
+import ActionButtons from "../reusableitems/ActionButtons"
+import EditModal from "../reusableitems/EditModal"
 
 
 
@@ -14,10 +17,16 @@ const [products, setProducts] = useState([])
 const [viewMode, setViewMode] = useState("table")
 
 const [currentPage, setCurrentPage] = useState(1)
-
+const {searchQuery} = useContext(SearchContext)
+const [editingProduct, setEditingProduct] = useState(null)
 const productsPerPage = 6
 
 
+useEffect(() => {
+
+  setCurrentPage(1)
+
+}, [searchQuery])
 
 useEffect(() => {
 
@@ -37,6 +46,72 @@ async function getProducts(){
 
 }
 
+function handleDelete(id){
+
+  const filteredProducts =
+
+  products.filter(
+    (product) => product.id !== id
+  )
+
+  setProducts(filteredProducts)
+
+}
+
+function handleEdit(product){
+
+  setEditingProduct(product)
+
+}
+
+function handleChange(event){
+
+  const {name,value} = event.target
+
+  setEditingProduct({
+
+    ...editingProduct,
+
+    [name]: value
+
+  })
+
+}
+
+
+function handleSave(){
+
+  const updatedProducts =
+
+  products.map((product) =>
+
+    product.id === editingProduct.id
+
+      ? editingProduct
+
+      : product
+
+  )
+
+  setProducts(updatedProducts)
+
+  setEditingProduct(null)
+
+}
+
+
+const filteredProducts =
+
+products.filter((product) =>
+
+  product.title
+  .toLowerCase()
+  .includes(
+    searchQuery.toLowerCase()
+  )
+
+)
+
 
 
 const lastProductIndex =
@@ -53,7 +128,7 @@ lastProductIndex - productsPerPage
 
 const currentProducts =
 
-products.slice(
+filteredProducts.slice(
 
   firstProductIndex,
 
@@ -67,7 +142,7 @@ const totalPages =
 
 Math.ceil(
 
-  products.length / productsPerPage
+ filteredProducts.length / productsPerPage
 
 )
 
@@ -77,9 +152,21 @@ return(
 
   <div>
 
-    <h1 className="page-title">
-      Products Page
+      <div className="page-header">
+
+  <div>
+
+    <h1>
+      Products Management
     </h1>
+
+    <p>
+      Manage all the products
+    </p>
+
+  </div>
+
+</div>
 
 
 
@@ -121,6 +208,8 @@ return(
 
               <th>Rating</th>
 
+              <th>Actions</th>
+
             </tr>
 
           </thead>
@@ -157,6 +246,22 @@ return(
 
                   <td>
                     ⭐ {product.rating}
+                  </td>
+
+                  <td>
+
+  <ActionButtons
+
+    onEdit={() =>
+      handleEdit(product)
+    }
+
+    onDelete={() =>
+      handleDelete(product.id)
+    }
+
+  />
+
                   </td>
 
                 </tr>
@@ -233,6 +338,19 @@ return(
               ⭐ {product.rating}
             </p>
 
+
+            <ActionButtons
+
+  onEdit={() =>
+    handleEdit(product)
+  }
+
+  onDelete={() =>
+    handleDelete(product.id)
+  }
+
+/>
+
           </div>
 
         ))
@@ -256,6 +374,82 @@ return(
   setCurrentPage={setCurrentPage}
 
 />
+
+
+
+<div className="edit-form">
+
+  <EditModal
+
+    isOpen={editingProduct}
+
+    title="Edit Product"
+
+    onClose={() =>
+      setEditingProduct(null)
+    }
+
+    onSave={handleSave}
+
+  >
+
+    <label>
+      Product Title
+    </label>
+
+    <input
+      type="text"
+      name="title"
+      value={editingProduct?.title || ""}
+      onChange={handleChange}
+      placeholder="Enter Product Title"
+    />
+
+
+
+    <label>
+      Category
+    </label>
+
+    <input
+      type="text"
+      name="category"
+      value={editingProduct?.category || ""}
+      onChange={handleChange}
+      placeholder="Enter Category"
+    />
+
+
+
+    <label>
+      Price
+    </label>
+
+    <input
+      type="number"
+      name="price"
+      value={editingProduct?.price || ""}
+      onChange={handleChange}
+      placeholder="Enter Price"
+    />
+
+
+
+    <label>
+      Stock
+    </label>
+
+    <input
+      type="number"
+      name="stock"
+      value={editingProduct?.stock || ""}
+      onChange={handleChange}
+      placeholder="Enter Stock"
+    />
+
+  </EditModal>
+
+</div>
 
   </div>
 

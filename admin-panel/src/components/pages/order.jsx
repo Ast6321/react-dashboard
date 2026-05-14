@@ -1,14 +1,10 @@
-import { useEffect, useState }
-from "react"
-
-import { fetchOrders }
-from "../services/orderservice"
-
-import ViewToggle
-from "../reusableitems/viewtoggle"
-
-import Pagination
-from "../reusableitems/Pagination"
+import { useEffect, useState,useContext } from "react"
+import { fetchOrders } from "../services/orderservice"
+import ViewToggle from "../reusableitems/viewtoggle"
+import Pagination from "../reusableitems/Pagination"
+import { SearchContext } from "../context/searchContext"
+import EditModal from "../reusableitems/Editmodal"
+import ActionButtons from "../reusableitems/ActionButtons"
 
 
 
@@ -22,8 +18,18 @@ const [viewMode, setViewMode] = useState("table")
 
 const [currentPage, setCurrentPage] = useState(1)
 
+const {searchQuery} = useContext(SearchContext)
+
+const [editingOrder, setEditingOrder] = useState(null)
+
+
 const ordersPerPage = 6
 
+useEffect(() => {
+
+  setCurrentPage(1)
+
+}, [searchQuery])
 
 
 useEffect(() => {
@@ -45,6 +51,58 @@ async function getOrders(){
 }
 
 
+function handleEdit(order){
+
+  setEditingOrder(order)
+
+}
+
+
+
+function handleChange(event){
+
+  const { name, value } = event.target
+
+  setEditingOrder({
+
+    ...editingOrder,
+
+    [name]: value
+
+  })
+
+}
+
+
+
+function handleSave(){
+
+  const updatedOrders = orders.map((order) =>
+
+    order.id === editingOrder.id
+
+      ? editingOrder
+
+      : order
+
+  )
+
+  setOrders(updatedOrders)
+
+  setEditingOrder(null)
+
+}
+
+
+const filteredOrders =
+
+orders.filter((order) =>
+
+  String(order.id)
+  .includes(searchQuery)
+
+)
+
 
 const lastOrderIndex =
 
@@ -60,7 +118,7 @@ lastOrderIndex - ordersPerPage
 
 const currentOrders =
 
-orders.slice(
+filteredOrders.slice(
 
   firstOrderIndex,
 
@@ -74,7 +132,7 @@ const totalPages =
 
 Math.ceil(
 
-  orders.length / ordersPerPage
+  filteredOrders.length / ordersPerPage
 
 )
 
@@ -140,6 +198,8 @@ return(
 
               <th>Discounted</th>
 
+              <th>Actions</th>
+
             </tr>
 
           </thead>
@@ -177,6 +237,15 @@ return(
                   <td>
                     ${order.discountedTotal}
                   </td>
+
+                  <td>
+
+                   <ActionButtons
+                    onEdit={() => handleEdit(order)}
+                    onDelete={() => handleDelete(order.id)}
+                                     />
+
+                     </td>
 
                 </tr>
 
@@ -247,6 +316,12 @@ return(
               ${order.discountedTotal}
             </p>
 
+
+             <ActionButtons
+  onEdit={() => handleEdit(order)}
+  onDelete={() => handleDelete(order.id)}
+/>
+
           </div>
 
         ))
@@ -270,6 +345,53 @@ return(
   setCurrentPage={setCurrentPage}
 
 />
+
+
+<div className="edit-form">
+  <EditModal
+
+  isOpen={editingOrder}
+
+  title="Edit Order"
+
+  onClose={() => setEditingOrder(null)}
+
+  onSave={handleSave}
+
+>
+
+  <label>
+    Total Amount
+  </label>
+
+  <input
+    type="number"
+    name="total"
+    value={editingOrder?.total || ""}
+    onChange={handleChange}
+    placeholder="Total Amount"
+  />
+
+
+
+  <label>
+    Total Products
+  </label>
+
+  <input
+    type="number"
+    name="totalProducts"
+    value={editingOrder?.totalProducts || ""}
+    onChange={handleChange}
+    placeholder="Total Products"
+  />
+
+</EditModal>
+</div>
+
+
+
+
 
   </div>
 

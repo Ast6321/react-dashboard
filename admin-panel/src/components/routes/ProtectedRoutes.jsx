@@ -8,9 +8,19 @@ const {isAuthenticated,loading} = useContext(AuthContext)
 
 if(loading){
 
-  return <h2>Loading...</h2>
+  return (
+
+    <div className="page-loader">
+
+      Loading...
+
+    </div>
+
+  )
 
 }
+
+
 if(!isAuthenticated) {
     return <Navigate to="/login" />
   }

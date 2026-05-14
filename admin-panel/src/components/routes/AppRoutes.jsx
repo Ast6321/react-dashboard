@@ -25,7 +25,7 @@ function AppRoutes() {
 />
 
         <Route
-          path="/dashboard"
+          path="/dashboard/*"
           element={
             <ProtectedRoute>
               <MainLayout />
@@ -44,6 +44,7 @@ function AppRoutes() {
           <Route path="messages" element={<Messages />} />
 
         </Route>
+                <Route path="*" element={<Login />} />
 
       </Routes>
 

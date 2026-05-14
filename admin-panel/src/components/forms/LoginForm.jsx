@@ -35,7 +35,7 @@ async function handleSubmit(event) {
     console.log(data)
 
    
-      login(data.token)
+      await login(data.token)
    
 
     navigate("/dashboard")

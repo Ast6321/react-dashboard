@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState,useContext } from "react"
 import { fetchMessages } from "../services/messageservice"
 import ViewToggle from "../reusableitems/viewtoggle"
 import Pagination from "../reusableitems/Pagination"
+import { SearchContext } from "../context/searchContext"
+import EditModal from "../reusableitems/Editmodal"
+import ActionButtons from "../reusableitems/ActionButtons"
 
 
 
@@ -15,8 +18,18 @@ const [viewMode, setViewMode] = useState("table")
 
 const [currentPage, setCurrentPage] = useState(1)
 
-const messagesPerPage = 8
+const {searchQuery} = useContext(SearchContext)
 
+const [editingMessage, setEditingMessage] = useState(null)
+
+ const messagesPerPage = 8
+
+
+ useEffect(() => {
+
+  setCurrentPage(1)
+
+}, [searchQuery])
 
 
 useEffect(() => {
@@ -38,6 +51,59 @@ async function getMessages(){
 }
 
 
+function handleEdit(message){
+
+  setEditingMessage(message)
+
+}
+
+
+
+function handleChange(event){
+
+  const { name, value } = event.target
+
+  setEditingMessage({
+
+    ...editingMessage,
+
+    [name]: value
+
+  })
+
+}
+
+
+
+function handleSave(){
+
+  const updatedMessages = messages.map((message) =>
+
+    message.id === editingMessage.id
+
+      ? editingMessage
+
+      : message
+
+  )
+
+  setMessages(updatedMessages)
+
+  setEditingMessage(null)
+
+}
+
+const filteredMessages =
+
+messages.filter((message) =>
+
+  message.name
+  .toLowerCase()
+  .includes(
+    searchQuery.toLowerCase()
+  )
+
+)
 
 const lastMessageIndex =
 
@@ -53,7 +119,7 @@ lastMessageIndex - messagesPerPage
 
 const currentMessages =
 
-messages.slice(
+filteredMessages.slice(
 
   firstMessageIndex,
 
@@ -67,7 +133,7 @@ const totalPages =
 
 Math.ceil(
 
-  messages.length / messagesPerPage
+ filteredMessages.length / messagesPerPage
 
 )
 
@@ -77,9 +143,21 @@ return(
 
   <div>
 
-    <h1 className="page-title">
-      Messages Page
+          <div className="page-header">
+
+  <div>
+
+    <h1>
+      Message Management
     </h1>
+
+    <p>
+      Manage all the messages
+    </p>
+
+  </div>
+
+</div>
 
 
 
@@ -117,6 +195,8 @@ return(
 
               <th>Message</th>
 
+              <th>Actions</th>
+
             </tr>
 
           </thead>
@@ -146,6 +226,15 @@ return(
                   <td>
                     {message.body}
                   </td>
+
+                  <td>
+
+  <ActionButtons
+    onEdit={() => handleEdit(message)}
+    onDelete={() => handleDelete(message.id)}
+  />
+
+</td>
 
                 </tr>
 
@@ -193,6 +282,12 @@ return(
               {message.body}
             </p>
 
+
+            <ActionButtons
+  onEdit={() => handleEdit(message)}
+  onDelete={() => handleDelete(message.id)}
+/>
+
           </div>
 
         ))
@@ -216,6 +311,66 @@ return(
   setCurrentPage={setCurrentPage}
 
 />
+
+<div className="edit-form">
+
+  <EditModal
+
+  isOpen={editingMessage}
+
+  title="Edit Message"
+
+  onClose={() => setEditingMessage(null)}
+
+  onSave={handleSave}
+
+>
+
+  <label>
+    Name
+  </label>
+
+  <input
+    type="text"
+    name="name"
+    value={editingMessage?.name || ""}
+    onChange={handleChange}
+    placeholder="Name"
+  />
+
+
+
+  <label>
+    Email
+  </label>
+
+  <input
+    type="email"
+    name="email"
+    value={editingMessage?.email || ""}
+    onChange={handleChange}
+    placeholder="Email"
+  />
+
+
+
+  <label>
+    Message
+  </label>
+
+  <input
+    type="text"
+    name="body"
+    value={editingMessage?.body || ""}
+    onChange={handleChange}
+    placeholder="Message"
+  />
+
+</EditModal>
+</div>
+
+
+
 
   </div>
 

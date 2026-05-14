@@ -31,17 +31,25 @@ function AuthProvider({ children }) {
 
 
 
-  function login(userToken){
+async function login(userToken){
 
     Cookies.set(
       "token",
       userToken,
       {
-        expires: 7
+        expires: 7,
+        path:"/",
+        sameSite: "Lax"
       }
+       
     )
 
-    setToken(userToken)
+    console.log(
+  "cookie after set:",
+  document.cookie
+)
+
+   await setToken(userToken)
 
   }
 
@@ -49,7 +57,12 @@ function AuthProvider({ children }) {
 
   function logout(){
 
-    Cookies.remove("token")
+    Cookies.remove(
+      "token",
+       {
+    path:"/"
+  }
+    )
 
     setToken(null)
 

@@ -1,17 +1,70 @@
 
 import {useContext, useState, useEffect } from "react"
+import {useLocation} from "react-router-dom"
 import { ProfileContext } from "../context/ProfileContext"
 import ProfileModal from "../Profile/ProfileModal"
 import { FaMoon } from "react-icons/fa"
 import { MdLightMode } from "react-icons/md"
+import {SearchContext} from "../context/searchContext"
 
 
 
 function Navbar({ setOpenSidebar }) {
-
+const location = useLocation()
 const [openModal, setOpenModal] = useState(false)
 const { profile } = useContext(ProfileContext)
 const [darkMode, setDarkMode] = useState(false)
+const {searchQuery,setSearchQuery} = useContext(SearchContext)
+
+let placeholder = "Search..."
+
+if(location.pathname === "/dashboard"){
+
+  placeholder =
+  "Search by order id"
+
+}
+
+else if(
+  location.pathname ===
+  "/dashboard/users"
+){
+
+  placeholder =
+  "Search by username"
+
+}
+
+else if(
+  location.pathname ===
+  "/dashboard/products"
+){
+
+  placeholder =
+  "Search by product title"
+
+}
+
+else if(
+  location.pathname ===
+  "/dashboard/orders"
+){
+
+  placeholder =
+  "Search by order id"
+
+}
+
+else if(
+  location.pathname ===
+  "/dashboard/messages"
+){
+
+  placeholder =
+  "Search by message name"
+
+}
+
 
 useEffect(() => {
 
@@ -65,10 +118,23 @@ function toggleTheme(){
 
       <div className="search-box">
 
-        <input
-          type="text"
-          placeholder="Search..."
-        />
+       <input
+
+  type="text"
+
+  placeholder={placeholder}
+
+  value={searchQuery}
+
+  onChange={(e) =>
+
+    setSearchQuery(
+      e.target.value
+    )
+
+  }
+
+/>
 
       </div>
 
